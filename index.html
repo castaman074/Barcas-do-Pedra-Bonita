@@ -148,8 +148,6 @@ function salvar() {
   const destinoSelect = document.getElementById("destino");
 const destino = destinoSelect.options[destinoSelect.selectedIndex].value;
 
-alert(destino);
-
   fetch(URL, {
     method: "POST",
     body: JSON.stringify({
@@ -177,6 +175,9 @@ function carregar() {
       futsal.innerHTML = "";
 
       data.slice(1).forEach(linha => {
+  data.forEach(linha => {
+  if (!linha[0]) return;
+
   const dia = linha[0];
   const destino = linha[1];
   const motorista = linha[2];
