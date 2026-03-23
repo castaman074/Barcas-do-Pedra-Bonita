@@ -177,9 +177,15 @@ function carregar() {
       futsal.innerHTML = "";
 
       data.slice(1).forEach(linha => {
-        const item = `<div class="item">${linha[0]} - ${linha[2]} (${linha[3]}) → ${linha[4]}</div>`;
+        const dia = linha[0];
+        const destino = linha[1];
+        const motorista = linha[2];
+        const tipo = linha[3];
+        const kids = linha[4];
 
-        if (linha[1] === "Escola") {
+const item = `<div class="item">${dia} - ${motorista} (${tipo}) → ${kids}</div>`;
+
+        if (destino === "Escola") {
           escola.innerHTML += item;
         } else {
           futsal.innerHTML += item;
