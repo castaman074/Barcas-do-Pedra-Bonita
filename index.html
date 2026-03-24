@@ -22,9 +22,7 @@ h1 { text-align: center; }
   margin-bottom: 12px;
 }
 
-.select-group {
-  margin-bottom: 10px;
-}
+.select-group { margin-bottom: 10px; }
 
 .label {
   background: #e6f0ff;
@@ -54,12 +52,9 @@ button {
 }
 
 .btn-main { background: #007aff; }
-.btn-confirmar { background: #5ac8fa; }
 .btn-whats { background: #007aff; }
 
-.btn-disabled {
-  background: #ccc;
-}
+.btn-disabled { background: #ccc; }
 
 .kids {
   display: grid;
@@ -113,11 +108,7 @@ button {
   <select id="destino"></select>
 </div>
 
-<button class="btn-main" onclick="prepararCarona()">🚐 Tenho vaga</button>
-
-<button id="btnConfirmar" class="btn-confirmar" onclick="confirmarCarona()" style="display:none;">
-✅ Confirmar carona
-</button>
+<button class="btn-main" onclick="confirmarCarona()">✅ Confirmar carona</button>
 
 <div class="kids" id="kids"></div>
 
@@ -134,11 +125,9 @@ button {
 <script>
 const URL = "https://script.google.com/macros/s/AKfycbzv45aDvmAMqew1hyvBb6BhyL9aA3rvn_7rmxGyBCHQYBEpQhij4iyHnoEUMrEkjhIjkw/exec";
 
-let caronaTemp = null;
 let selecionados = [];
 
 const ordemDias = ["Segunda","Terça","Quarta","Quinta","Sexta"];
-
 const motoristas = ["Carmen/João","Denise/Telmo","Karina/Jéferson","Natália/Pedro","Vanessa/Cris"];
 
 document.getElementById("motorista").innerHTML = motoristas.map(m=>`<option>${m}</option>`).join("");
@@ -179,24 +168,17 @@ function atualizarBotaoEntrar(){
   }
 }
 
-function prepararCarona(){
-  caronaTemp = {
-    motorista: document.getElementById("motorista").value,
-    dia: document.getElementById("dia").value,
-    tipo: document.getElementById("tipo").value,
-    destino: document.getElementById("destino").value
-  };
-
-  document.getElementById("btnConfirmar").style.display = "block";
-}
-
 function confirmarCarona(){
+  const motorista = document.getElementById("motorista").value;
+  const dia = document.getElementById("dia").value;
+  const tipo = document.getElementById("tipo").value;
+  const destino = document.getElementById("destino").value;
+
   fetch(URL,{
     method:"POST",
-    body:JSON.stringify({...caronaTemp, kids:[]})
+    body:JSON.stringify({motorista,dia,tipo,destino,kids:[]})
   }).then(()=>{
     alert("Carona confirmada! 🚐");
-    document.getElementById("btnConfirmar").style.display = "none";
     carregar();
   });
 }
