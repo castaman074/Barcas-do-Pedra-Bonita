@@ -22,11 +22,20 @@ h1 { text-align: center; }
   margin-bottom: 12px;
 }
 
+.select-group {
+  margin-bottom: 10px;
+}
+
+.label {
+  font-size: 12px;
+  color: #ff3b30;
+  margin-bottom: 2px;
+}
+
 select {
   width: 100%;
   padding: 10px;
   border-radius: 10px;
-  margin-bottom: 8px;
 }
 
 button {
@@ -42,6 +51,10 @@ button {
 .btn-vaga { background: #34c759; }
 .btn-confirmar { background: #ff9500; }
 .btn-whats { background: #25d366; }
+
+.btn-disabled {
+  background: #ccc;
+}
 
 .kids {
   display: grid;
@@ -75,10 +88,25 @@ button {
 
 <div class="card">
 
-<select id="motorista"></select>
-<select id="dia"></select>
-<select id="tipo"></select>
-<select id="destino"></select>
+<div class="select-group">
+  <div class="label">Família</div>
+  <select id="motorista"></select>
+</div>
+
+<div class="select-group">
+  <div class="label">Dia</div>
+  <select id="dia"></select>
+</div>
+
+<div class="select-group">
+  <div class="label">Trajeto</div>
+  <select id="tipo"></select>
+</div>
+
+<div class="select-group">
+  <div class="label">Origem/Destino</div>
+  <select id="destino"></select>
+</div>
 
 <button class="btn-vaga" onclick="prepararCarona()">🚐 Tenho vaga</button>
 
@@ -88,7 +116,7 @@ button {
 
 <div class="kids" id="kids"></div>
 
-<button onclick="alert('Escolha a carona abaixo 👇')">➕ Entrar na carona</button>
+<button id="btnEntrar" class="btn-disabled">➕ Entrar na carona</button>
 
 <button class="btn-whats" onclick="enviarWhats()">📤 Avisar no WhatsApp</button>
 
@@ -114,6 +142,7 @@ document.getElementById("destino").innerHTML = `<option>Escola</option><option>F
 
 const kidsLista = ["José","João","Joaquim","Beni","Bento","Finkler"];
 const kidsDiv = document.getElementById("kids");
+const btnEntrar = document.getElementById("btnEntrar");
 
 kidsLista.forEach(kid=>{
   const div=document.createElement("div");
@@ -128,10 +157,22 @@ kidsLista.forEach(kid=>{
       selecionados.push(kid);
       div.classList.add("active");
     }
+
+    atualizarBotaoEntrar();
   };
 
   kidsDiv.appendChild(div);
 });
+
+function atualizarBotaoEntrar(){
+  if(selecionados.length > 0){
+    btnEntrar.classList.remove("btn-disabled");
+    btnEntrar.style.background = "#007aff";
+  } else {
+    btnEntrar.classList.add("btn-disabled");
+    btnEntrar.style.background = "#ccc";
+  }
+}
 
 function prepararCarona(){
   caronaTemp = {
@@ -167,9 +208,12 @@ function entrarNaCarona(c){
   }).then(()=>{
     selecionados=[];
     document.querySelectorAll(".kid").forEach(k=>k.classList.remove("active"));
+    atualizarBotaoEntrar();
     carregar();
   });
 }
+
+btnEntrar.onclick = () => alert("Escolha uma carona abaixo 👇");
 
 function carregar(){
   fetch(URL)
