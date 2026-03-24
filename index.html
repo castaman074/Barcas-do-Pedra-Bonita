@@ -6,7 +6,7 @@
 
 <style>
 body {
-  font-family: -apple-system, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   background: #f2f2f7;
   padding: 10px;
   max-width: 500px;
@@ -27,9 +27,14 @@ h1 { text-align: center; }
 }
 
 .label {
+  background: #e6f0ff;
+  color: #000;
+  font-weight: bold;
   font-size: 12px;
-  color: #ff3b30;
-  margin-bottom: 2px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 4px;
 }
 
 select {
@@ -48,9 +53,9 @@ button {
   font-weight: bold;
 }
 
-.btn-vaga { background: #34c759; }
-.btn-confirmar { background: #ff9500; }
-.btn-whats { background: #25d366; }
+.btn-main { background: #007aff; }
+.btn-confirmar { background: #5ac8fa; }
+.btn-whats { background: #007aff; }
 
 .btn-disabled {
   background: #ccc;
@@ -108,7 +113,7 @@ button {
   <select id="destino"></select>
 </div>
 
-<button class="btn-vaga" onclick="prepararCarona()">🚐 Tenho vaga</button>
+<button class="btn-main" onclick="prepararCarona()">🚐 Tenho vaga</button>
 
 <button id="btnConfirmar" class="btn-confirmar" onclick="confirmarCarona()" style="display:none;">
 ✅ Confirmar carona
@@ -132,11 +137,12 @@ const URL = "https://script.google.com/macros/s/AKfycbzv45aDvmAMqew1hyvBb6BhyL9a
 let caronaTemp = null;
 let selecionados = [];
 
+const ordemDias = ["Segunda","Terça","Quarta","Quinta","Sexta"];
+
 const motoristas = ["Carmen/João","Denise/Telmo","Karina/Jéferson","Natália/Pedro","Vanessa/Cris"];
-const dias = ["Segunda","Terça","Quarta","Quinta","Sexta"];
 
 document.getElementById("motorista").innerHTML = motoristas.map(m=>`<option>${m}</option>`).join("");
-document.getElementById("dia").innerHTML = dias.map(d=>`<option>${d}</option>`).join("");
+document.getElementById("dia").innerHTML = ordemDias.map(d=>`<option>${d}</option>`).join("");
 document.getElementById("tipo").innerHTML = `<option value="Levar">Ida</option><option value="Buscar">Volta</option>`;
 document.getElementById("destino").innerHTML = `<option>Escola</option><option>Futsal</option>`;
 
@@ -157,7 +163,6 @@ kidsLista.forEach(kid=>{
       selecionados.push(kid);
       div.classList.add("active");
     }
-
     atualizarBotaoEntrar();
   };
 
@@ -226,6 +231,7 @@ function carregar(){
 
     data.forEach(l=>{
       if(!l[0]) return;
+
       const key=l[0]+l[1]+l[2]+l[3];
 
       if(!grupos[key]){
@@ -241,7 +247,11 @@ function carregar(){
       }
     });
 
-    Object.values(grupos).forEach(c=>{
+    const ordenado = Object.values(grupos).sort((a,b)=>{
+      return ordemDias.indexOf(a.dia) - ordemDias.indexOf(b.dia);
+    });
+
+    ordenado.forEach(c=>{
       let html=`<div class="car">
       <strong>${c.dia} - ${c.destino} (${c.tipo})</strong><br>
       ${c.motorista}<br>`;
