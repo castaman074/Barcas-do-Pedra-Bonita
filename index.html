@@ -82,7 +82,6 @@ button {
 .hora18 { color: #5ac8fa; font-weight: bold; }
 .hora19 { color: #007aff; font-weight: bold; }
 
-/* 🔥 LABEL LARANJA */
 .label-pias {
   background: #ff9f0a;
   color: black;
@@ -129,18 +128,14 @@ button {
   </select>
 </div>
 
-<!-- 🔥 LABEL LARANJA -->
 <div class="label-pias">
   Selecione os piás abaixo
 </div>
 
-<!-- 🔥 KIDS -->
 <div class="kids" id="kids"></div>
 
-<!-- 🔥 CONFIRMAR DEPOIS -->
 <button class="btn-main" onclick="confirmarCarona()">✅ Confirmar carona</button>
 
-<!-- 🔥 WHATS FINAL -->
 <button class="btn-whats" onclick="enviarWhats()">📤 Avisar no WhatsApp</button>
 
 </div>
@@ -256,7 +251,7 @@ function carregar(){
     escola.innerHTML="";
     futsal.innerHTML="";
 
-    data.reverse().forEach(l=>{
+    [...data].reverse().forEach(l=>{
       if(!l[0]) return;
 
       const horaClass = l[5] === "18h" ? "hora18" : "hora19";
