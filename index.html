@@ -39,7 +39,7 @@ select {
 button {
   width: 100%;
   padding: 10px;
-  margin-top: 6px;
+  margin-top: 8px;
   border-radius: 10px;
   border: none;
   color: white;
@@ -81,6 +81,17 @@ button {
 
 .hora18 { color: #5ac8fa; font-weight: bold; }
 .hora19 { color: #007aff; font-weight: bold; }
+
+/* 🔥 LABEL LARANJA */
+.label-pias {
+  background: #ff9f0a;
+  color: black;
+  font-weight: bold;
+  padding: 8px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 10px 0;
+}
 </style>
 </head>
 
@@ -118,14 +129,18 @@ button {
   </select>
 </div>
 
-<button class="btn-main" onclick="confirmarCarona()">✅ Confirmar carona</button>
-
-<div style="margin-top:10px; font-weight:bold; color:#aaa;">
-  Selecione os piás abaixo:
+<!-- 🔥 LABEL LARANJA -->
+<div class="label-pias">
+  Selecione os piás abaixo
 </div>
 
+<!-- 🔥 KIDS -->
 <div class="kids" id="kids"></div>
 
+<!-- 🔥 CONFIRMAR DEPOIS -->
+<button class="btn-main" onclick="confirmarCarona()">✅ Confirmar carona</button>
+
+<!-- 🔥 WHATS FINAL -->
 <button class="btn-whats" onclick="enviarWhats()">📤 Avisar no WhatsApp</button>
 
 </div>
@@ -161,9 +176,7 @@ function toggleHorario(){
 
   container.style.display = mostrar ? "block" : "none";
 
-  if (!mostrar) {
-    horario.value = "";
-  }
+  if (!mostrar) horario.value = "";
 }
 
 const kidsLista = ["José","João","Joaquim","Beni","Bento","Finkler"];
@@ -221,7 +234,7 @@ function entrarNaCarona(c){
     body:JSON.stringify({...c, kids:selecionados})
   }).then(()=>{
     selecionados=[];
-    document.querySelectorAll(".kid").forEach(k => k.classList.remove("active"));
+    document.querySelectorAll(".kid").forEach(k=>k.classList.remove("active"));
     carregar();
   });
 }
