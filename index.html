@@ -7,16 +7,20 @@
 <style>
 body {
   font-family: -apple-system, sans-serif;
-  background: #f2f2f7;
+  background: #1c1c1e;
   padding: 10px;
   max-width: 500px;
   margin: auto;
 }
 
-h1 { text-align: center; }
+h1 {
+  text-align: center;
+  color: white;
+}
 
 .card {
-  background: white;
+  background: #2c2c2e;
+  color: white;
   padding: 15px;
   border-radius: 16px;
   margin-bottom: 12px;
@@ -27,6 +31,9 @@ select {
   padding: 10px;
   border-radius: 10px;
   margin-bottom: 10px;
+  background: #3a3a3c;
+  color: white;
+  border: none;
 }
 
 button {
@@ -53,18 +60,17 @@ button {
 .kid {
   padding: 10px;
   border-radius: 10px;
-  border: 1px solid #ccc;
+  background: #3a3a3c;
   text-align: center;
   cursor: pointer;
 }
 
 .kid.active {
   background: #007aff;
-  color: white;
 }
 
 .car {
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #444;
   padding: 10px 0;
 }
 
@@ -98,7 +104,7 @@ button {
   <option>Futsal</option>
 </select>
 
-<select id="tipo">
+<select id="tipo" onchange="toggleHorario()">
   <option value="" disabled selected>Trajeto</option>
   <option value="Levar">Ida</option>
   <option value="Buscar">Volta</option>
@@ -131,7 +137,7 @@ button {
 </div>
 
 <script>
-const URL = "https://script.google.com/macros/s/AKfycbyT0J-7SaBI9OlF8rLZ3WhN0B8o7TwEAEVpupjt3FpiR6R0gAClJLWPwTVt-xN1eV-Z2A/exec";
+const URL = "https://script.google.com/macros/s/AKfycbx8mQrUXJrvj8HfcaKEBjZ6c48D4eNockXxpNO6gxQ7R5Xr_MWhfkGokQpMzM-6IC4wYg/exec";
 
 let selecionados = [];
 
@@ -143,8 +149,17 @@ document.getElementById("dia").innerHTML += dias.map(d=>`<option>${d}</option>`)
 
 function toggleHorario(){
   const destino = document.getElementById("destino").value;
-  document.getElementById("horarioContainer").style.display =
-    destino === "Escola" ? "block" : "none";
+  const tipo = document.getElementById("tipo").value;
+  const mostrar = destino === "Escola" && tipo === "Buscar";
+
+  const container = document.getElementById("horarioContainer");
+  const horario = document.getElementById("horario");
+
+  container.style.display = mostrar ? "block" : "none";
+
+  if (!mostrar) {
+    horario.value = "";
+  }
 }
 
 const kidsLista = ["José","João","Joaquim","Beni","Bento","Finkler"];
@@ -174,6 +189,16 @@ function confirmarCarona(){
   const tipo = document.getElementById("tipo").value;
   const destino = document.getElementById("destino").value;
   const horario = document.getElementById("horario").value;
+
+  if (!motorista || !dia || !tipo || !destino) {
+    alert("Preenche tudo antes de confirmar 👀");
+    return;
+  }
+
+  if (destino === "Escola" && tipo === "Buscar" && !horario) {
+    alert("Seleciona o horário 👀");
+    return;
+  }
 
   fetch(URL,{
     method:"POST",
@@ -242,8 +267,25 @@ function carregar(){
 }
 
 function enviarWhats(){
-  const texto = document.body.innerText;
-  window.open("https://wa.me/?text="+encodeURIComponent(texto));
+  let texto = "🚐 Barcas do Pedra Bonita\n\n";
+
+  const escola = document.getElementById("escola").innerText.trim();
+  const futsal = document.getElementById("futsal").innerText.trim();
+
+  if (escola && !escola.includes("Nenhuma")) {
+    texto += "📚 Escola:\n" + escola + "\n\n";
+  }
+
+  if (futsal && !futsal.includes("Nenhuma")) {
+    texto += "⚽ Futsal:\n" + futsal + "\n\n";
+  }
+
+  if (texto === "🚐 Barcas do Pedra Bonita\n\n") {
+    alert("Nada pra enviar");
+    return;
+  }
+
+  window.open("https://wa.me/?text=" + encodeURIComponent(texto));
 }
 
 carregar();
