@@ -48,8 +48,6 @@ button {
 
 .btn-main { background: #007aff; }
 .btn-whats { background: #25d366; }
-.btn-entrar { background: #007aff; }
-.btn-sair { background: #ff3b30; }
 
 .kids {
   display: grid;
@@ -151,7 +149,7 @@ button {
 </div>
 
 <script>
-const URL = "https://script.google.com/macros/s/AKfycbx8mQrUXJrvj8HfcaKEBjZ6c48D4eNockXxpNO6gxQ7R5Xr_MWhfkGokQpMzM-6IC4wYg/exec";
+const URL = "https://script.google.com/macros/s/AKfycbzGIlqwhUYx-L0tDDAjhkhJtDYdjH8Mnyh40p0IK_W9svHQZYW1cTfcUVU70lNcyCuUgg/exec";
 
 let selecionados = [];
 
@@ -218,106 +216,69 @@ function confirmarCarona(){
   }).then(()=>carregar());
 }
 
-function entrarNaCarona(c){
-  if(selecionados.length===0){
-    alert("Seleciona criança");
-    return;
-  }
-
-  fetch(URL,{
-    method:"POST",
-    body:JSON.stringify({...c, kids:selecionados})
-  }).then(()=>{
-    selecionados=[];
-    document.querySelectorAll(".kid").forEach(k=>k.classList.remove("active"));
-    carregar();
-  });
-}
-
-function sairDaCarona(c, nome){
-  fetch(URL,{
-    method:"POST",
-    body:JSON.stringify({...c, kids:[nome], remover:true})
-  }).then(()=>carregar());
-}
-
 function carregar(){
   fetch(URL)
   .then(r=>r.json())
   .then(data=>{
-    const escola = document.getElementById("escola");
-    const futsal = document.getElementById("futsal");
+    const escola=document.getElementById("escola");
+    const futsal=document.getElementById("futsal");
 
-    escola.innerHTML = "";
-    futsal.innerHTML = "";
+    escola.innerHTML="";
+    futsal.innerHTML="";
 
     if (!data || data.length === 0) {
-      escola.innerHTML = "Nenhuma carona";
-      futsal.innerHTML = "Nenhuma carona";
+      escola.innerHTML="Nenhuma carona";
+      futsal.innerHTML="Nenhuma carona";
       return;
     }
 
-    // 🔥 garante array válido
-    const linhas = Array.isArray(data[0]) ? data : [data];
-
-    linhas.reverse().forEach(l => {
+    data.slice().reverse().forEach(l=>{
       if (!l || !l[0]) return;
 
-      const dia = l[0];
-      const destino = l[1];
-      const motorista = l[2];
-      const tipo = l[3];
-      const kids = l[4];
-      const horario = l[5];
+      const dia=l[0];
+      const destino=l[1];
+      const motorista=l[2];
+      const tipo=l[3];
+      const kids=l[4];
+      const horario=l[5];
 
       const horaClass = horario === "18h" ? "hora18" : "hora19";
 
-      let html = `<div class="car">
-        <strong>${dia} ${horario ? "- " : ""}<span class="${horaClass}">${horario || ""}</span> - ${destino} (${tipo})</strong><br>
-        ${motorista}<br>`;
+      let html=`<div class="car">
+      <strong>${dia} ${horario ? "- " : ""}<span class="${horaClass}">${horario || ""}</span> - ${destino} (${tipo})</strong><br>
+      ${motorista}<br>`;
 
-      if (kids) {
+      if(kids){
         kids.split(", ").forEach(k=>{
-          html += `→ ${k}<br>`;
+          html+=`→ ${k}<br>`;
         });
       } else {
-        html += `<em style="color:#aaa;">Nenhuma criança ainda</em><br>`;
+        html+=`<em style="color:#aaa;">Nenhuma criança ainda</em><br>`;
       }
 
-      html += `</div>`;
+      html+="</div>";
 
-      if (destino === "Escola") {
-        escola.innerHTML += html;
-      } else {
-        futsal.innerHTML += html;
-      }
+      if(destino==="Escola") escola.innerHTML+=html;
+      else futsal.innerHTML+=html;
     });
-
-    if (!escola.innerHTML) escola.innerHTML = "Nenhuma carona";
-    if (!futsal.innerHTML) futsal.innerHTML = "Nenhuma carona";
   });
 }
 
 function enviarWhats(){
-  let texto = "🚐 Barcas do Pedra Bonita\n\n";
+  let texto="🚐 Barcas do Pedra Bonita\n\n";
 
-  const escola = document.getElementById("escola").innerText.trim();
-  const futsal = document.getElementById("futsal").innerText.trim();
+  const escola=document.getElementById("escola").innerText.trim();
+  const futsal=document.getElementById("futsal").innerText.trim();
 
-  if (escola && !escola.includes("Nenhuma")) {
-    texto += "📚 Escola:\n" + escola + "\n\n";
+  if(escola && !escola.includes("Nenhuma")){
+    texto+="📚 Escola:\n"+escola+"\n\n";
   }
 
-  if (futsal && !futsal.includes("Nenhuma")) {
-    texto += "⚽ Futsal:\n" + futsal + "\n\n";
+  if(futsal && !futsal.includes("Nenhuma")){
+    texto+="⚽ Futsal:\n"+futsal+"\n\n";
   }
 
-  if (texto === "🚐 Barcas do Pedra Bonita\n\n") {
-    alert("Nada pra enviar");
-    return;
-  }
-
-  window.open("https://wa.me/?text=" + encodeURIComponent(texto));
+  window.open("https://wa.me/?text="+encodeURIComponent(texto));
 }
 
 carregar();
