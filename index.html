@@ -245,38 +245,56 @@ function carregar(){
   fetch(URL)
   .then(r=>r.json())
   .then(data=>{
-    const escola=document.getElementById("escola");
-    const futsal=document.getElementById("futsal");
+    const escola = document.getElementById("escola");
+    const futsal = document.getElementById("futsal");
 
-    escola.innerHTML="";
-    futsal.innerHTML="";
+    escola.innerHTML = "";
+    futsal.innerHTML = "";
 
-    [...data].reverse().forEach(l=>{
-      if(!l[0]) return;
+    if (!data || data.length === 0) {
+      escola.innerHTML = "Nenhuma carona";
+      futsal.innerHTML = "Nenhuma carona";
+      return;
+    }
 
-      const horaClass = l[5] === "18h" ? "hora18" : "hora19";
+    // 🔥 garante array válido
+    const linhas = Array.isArray(data[0]) ? data : [data];
 
-      let html=`<div class="car">
-      <strong>${l[0]} ${l[5] ? "- " : ""}<span class="${horaClass}">${l[5] || ""}</span> - ${l[1]} (${l[3]})</strong><br>
-      ${l[2]}<br>`;
+    linhas.reverse().forEach(l => {
+      if (!l || !l[0]) return;
 
-      if(l[4]){
-        l[4].split(", ").forEach(k=>{
-          html+=`→ ${k} <button class="btn-sair" onclick='sairDaCarona(${JSON.stringify(l)}, "${k}")'>Sair</button><br>`;
+      const dia = l[0];
+      const destino = l[1];
+      const motorista = l[2];
+      const tipo = l[3];
+      const kids = l[4];
+      const horario = l[5];
+
+      const horaClass = horario === "18h" ? "hora18" : "hora19";
+
+      let html = `<div class="car">
+        <strong>${dia} ${horario ? "- " : ""}<span class="${horaClass}">${horario || ""}</span> - ${destino} (${tipo})</strong><br>
+        ${motorista}<br>`;
+
+      if (kids) {
+        kids.split(", ").forEach(k=>{
+          html += `→ ${k}<br>`;
         });
       } else {
         html += `<em style="color:#aaa;">Nenhuma criança ainda</em><br>`;
       }
 
-      html+=`<button class="btn-entrar" onclick='entrarNaCarona(${JSON.stringify(l)})'>Entrar nessa carona</button>`;
-      html+="</div>";
+      html += `</div>`;
 
-      if(l[1]==="Escola") escola.innerHTML+=html;
-      else futsal.innerHTML+=html;
+      if (destino === "Escola") {
+        escola.innerHTML += html;
+      } else {
+        futsal.innerHTML += html;
+      }
     });
 
-    if(!escola.innerHTML) escola.innerHTML="Nenhuma carona";
-    if(!futsal.innerHTML) futsal.innerHTML="Nenhuma carona";
+    if (!escola.innerHTML) escola.innerHTML = "Nenhuma carona";
+    if (!futsal.innerHTML) futsal.innerHTML = "Nenhuma carona";
   });
 }
 
