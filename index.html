@@ -47,13 +47,13 @@ button {
 }
 
 .btn-main { background: #007aff; }
-.btn-whats { background: #25d366; }
-.btn-entrar { background: #34c759; }
+.btn-embarcar { background: #34c759; }
 
 .kids {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
+  margin-top: 10px;
 }
 
 .kid {
@@ -66,14 +66,10 @@ button {
 
 .kid.active { background: #007aff; }
 
-.label-pias {
-  background: #ff9f0a;
-  color: black;
+.label {
+  margin-top: 10px;
   font-weight: bold;
-  padding: 8px;
-  border-radius: 8px;
-  text-align: center;
-  margin: 10px 0;
+  color: #ff9f0a;
 }
 
 .car {
@@ -111,30 +107,26 @@ button {
 </select>
 
 <select id="destino" onchange="toggleHorario()">
-<option disabled selected>Origem/Destino</option>
+<option disabled selected>Selecione a Origem/Destino</option>
 <option>Escola</option>
 <option>Futsal</option>
 </select>
 
 <select id="tipo" onchange="toggleHorario()">
-<option disabled selected>Trajeto</option>
+<option disabled selected>Selecione o Trajeto</option>
 <option value="Levar">Ida</option>
 <option value="Buscar">Volta</option>
 </select>
 
 <div id="horarioContainer" style="display:none;">
 <select id="horario">
-<option disabled selected>Horário</option>
+<option disabled selected>Selecione o Horário</option>
 <option>18h</option>
 <option>19h</option>
 </select>
 </div>
 
-<div class="label-pias">Selecione os piás abaixo</div>
-<div class="kids" id="kids"></div>
-
-<button class="btn-main" onclick="confirmar()">✅ Confirmar carona</button>
-<button class="btn-whats" onclick="whats()">📤 Avisar no WhatsApp</button>
+<button class="btn-main" onclick="confirmar()">✅ Confirmar Carona?</button>
 
 </div>
 
@@ -150,28 +142,12 @@ button {
 
 <script>
 const URL = "https://script.google.com/macros/s/AKfycbzZeQKg_1NaJSWvNye7iHCtcRsZWdwd5fJVvfufT7WB0FZ6PAGzaVh4rQmR8VUW9SwgQg/exec";
-let selecionados=[];
+const kidsLista = ["José","João","Joaquim","Beni","Bento","Finkler"];
 
 function toggleHorario(){
   horarioContainer.style.display =
     (destino.value==="Escola" && tipo.value==="Buscar")?"block":"none";
 }
-
-["José","João","Joaquim","Beni","Bento","Finkler"].forEach(k=>{
-  const d=document.createElement("div");
-  d.className="kid";
-  d.innerText=k;
-  d.onclick=()=>{
-    if(selecionados.includes(k)){
-      selecionados=selecionados.filter(x=>x!==k);
-      d.classList.remove("active");
-    } else {
-      selecionados.push(k);
-      d.classList.add("active");
-    }
-  };
-  kids.appendChild(d);
-});
 
 function confirmar(){
   fetch(URL,{
@@ -187,44 +163,77 @@ function confirmar(){
   }).then(()=>setTimeout(load,600));
 }
 
-function entrar(l){
-  if(!selecionados.length){alert("Seleciona alguém");return;}
+function embarcar(linha, container){
+  const selecionados = [];
+
+  container.querySelectorAll(".kid.active").forEach(k=>{
+    selecionados.push(k.innerText);
+  });
+
+  if(!selecionados.length){
+    alert("Seleciona pelo menos 1 piá");
+    return;
+  }
+
   fetch(URL,{
     method:"POST",
     body:JSON.stringify({
-      dia:l[0],destino:l[1],motorista:l[2],
-      tipo:l[3],horario:l[5],kids:selecionados
+      dia:linha[0],
+      destino:linha[1],
+      motorista:linha[2],
+      tipo:linha[3],
+      horario:linha[5],
+      kids:selecionados
     })
-  }).then(()=>{
-    selecionados=[];
-    document.querySelectorAll(".kid").forEach(k=>k.classList.remove("active"));
-    setTimeout(load,600);
-  });
+  }).then(()=>setTimeout(load,600));
 }
 
 function load(){
   fetch(URL).then(r=>r.json()).then(data=>{
-    escola.innerHTML=""; futsal.innerHTML="";
-    data.slice().reverse().forEach(l=>{
-      if(!l[0])return;
+    escola.innerHTML="";
+    futsal.innerHTML="";
 
-      let html=`
-      <div class="car">
+    data.slice().reverse().forEach(l=>{
+      if(!l[0]) return;
+
+      const div = document.createElement("div");
+      div.className = "car";
+
+      div.innerHTML = `
       <b>${l[0]} - <span class="${l[5]=='18h'?'hora18':'hora19'}">${l[5]}</span> - ${l[1]} (${l[3]})</b><br>
       ${l[2]}<br>
-      ${l[4]?l[4].split(", ").map(k=>"→ "+k).join("<br>"):"<i>Nenhuma criança ainda</i>"}<br>
-      <button class="btn-entrar" onclick='entrar(${JSON.stringify(l)})'>Entrar nessa carona</button>
-      </div>`;
+      ${l[4]?l[4].split(", ").map(k=>"→ "+k).join("<br>"):"<i>Nenhuma criança ainda</i>"}
+      `;
 
-      (l[1]=="Escola"?escola:futsal).innerHTML+=html;
+      const label = document.createElement("div");
+      label.className="label";
+      label.innerText="Quem vai nessa Barca?";
+      div.appendChild(label);
+
+      const kidsDiv = document.createElement("div");
+      kidsDiv.className="kids";
+
+      kidsLista.forEach(k=>{
+        const el = document.createElement("div");
+        el.className="kid";
+        el.innerText=k;
+
+        el.onclick=()=>el.classList.toggle("active");
+        kidsDiv.appendChild(el);
+      });
+
+      div.appendChild(kidsDiv);
+
+      const btn = document.createElement("button");
+      btn.className="btn-embarcar";
+      btn.innerText="🚐 Embarcar";
+      btn.onclick=()=>embarcar(l, div);
+
+      div.appendChild(btn);
+
+      (l[1]=="Escola"?escola:futsal).appendChild(div);
     });
   });
-}
-
-function whats(){
-  let t="🚐 Barcas do Pedra Bonita\n\n";
-  document.querySelectorAll(".car").forEach(c=>t+=c.innerText+"\n\n");
-  window.open("https://wa.me/?text="+encodeURIComponent(t));
 }
 
 if('serviceWorker' in navigator){
