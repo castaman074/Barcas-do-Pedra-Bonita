@@ -6,7 +6,7 @@
 
 <style>
 body {
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, sans-serif;
   background: #f2f2f7;
   padding: 10px;
   max-width: 500px;
@@ -22,29 +22,17 @@ h1 { text-align: center; }
   margin-bottom: 12px;
 }
 
-.select-group { margin-bottom: 10px; }
-
-.label {
-  background: #e6f0ff;
-  color: #000;
-  font-weight: bold;
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  display: inline-block;
-  margin-bottom: 4px;
-}
-
 select {
   width: 100%;
   padding: 10px;
   border-radius: 10px;
+  margin-bottom: 10px;
 }
 
 button {
   width: 100%;
-  padding: 12px;
-  margin-top: 8px;
+  padding: 10px;
+  margin-top: 6px;
   border-radius: 10px;
   border: none;
   color: white;
@@ -54,6 +42,7 @@ button {
 .btn-main { background: #007aff; }
 .btn-whats { background: #25d366; }
 .btn-entrar { background: #007aff; }
+.btn-sair { background: #ff3b30; }
 
 .kids {
   display: grid;
@@ -78,6 +67,14 @@ button {
   border-bottom: 1px solid #eee;
   padding: 10px 0;
 }
+
+.section-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.hora18 { color: #5ac8fa; font-weight: bold; }
+.hora19 { color: #007aff; font-weight: bold; }
 </style>
 </head>
 
@@ -87,32 +84,32 @@ button {
 
 <div class="card">
 
-<div class="select-group">
-  <div class="label">Família</div>
-  <select id="motorista"></select>
-</div>
+<select id="motorista">
+  <option value="" disabled selected>Selecione a família</option>
+</select>
 
-<div class="select-group">
-  <div class="label">Dia</div>
-  <select id="dia"></select>
-</div>
+<select id="dia">
+  <option value="" disabled selected>Selecione o dia</option>
+</select>
 
-<div class="select-group">
-  <div class="label">Horário</div>
+<select id="destino" onchange="toggleHorario()">
+  <option value="" disabled selected>Origem/Destino</option>
+  <option>Escola</option>
+  <option>Futsal</option>
+</select>
+
+<select id="tipo">
+  <option value="" disabled selected>Trajeto</option>
+  <option value="Levar">Ida</option>
+  <option value="Buscar">Volta</option>
+</select>
+
+<div id="horarioContainer" style="display:none;">
   <select id="horario">
+    <option value="" disabled selected>Horário</option>
     <option>18h</option>
     <option>19h</option>
   </select>
-</div>
-
-<div class="select-group">
-  <div class="label">Trajeto</div>
-  <select id="tipo"></select>
-</div>
-
-<div class="select-group">
-  <div class="label">Origem/Destino</div>
-  <select id="destino"></select>
 </div>
 
 <button class="btn-main" onclick="confirmarCarona()">✅ Confirmar carona</button>
@@ -124,21 +121,31 @@ button {
 </div>
 
 <div class="card">
-  <div id="lista">Nenhuma carona ainda</div>
+  <div class="section-title">📚 Escola</div>
+  <div id="escola"></div>
+</div>
+
+<div class="card">
+  <div class="section-title">⚽ Futsal</div>
+  <div id="futsal"></div>
 </div>
 
 <script>
-const URL = "https://script.google.com/macros/s/AKfycbx2R19w-DI-GrlBygAzOD02hgHTaibslL302CDTqKzZRQvibaFtHMJr5p_hbuv3vF6Y9w/exec";
+const URL = "https://script.google.com/macros/s/AKfycbyT0J-7SaBI9OlF8rLZ3WhN0B8o7TwEAEVpupjt3FpiR6R0gAClJLWPwTVt-xN1eV-Z2A/exec";
 
 let selecionados = [];
 
 const motoristas = ["Carmen/João","Denise/Telmo","Karina/Jéferson","Natália/Pedro","Vanessa/Cris"];
 const dias = ["Segunda","Terça","Quarta","Quinta","Sexta"];
 
-document.getElementById("motorista").innerHTML = motoristas.map(m=>`<option>${m}</option>`).join("");
-document.getElementById("dia").innerHTML = dias.map(d=>`<option>${d}</option>`).join("");
-document.getElementById("tipo").innerHTML = `<option value="Levar">Ida</option><option value="Buscar">Volta</option>`;
-document.getElementById("destino").innerHTML = `<option>Escola</option><option>Futsal</option>`;
+document.getElementById("motorista").innerHTML += motoristas.map(m=>`<option>${m}</option>`).join("");
+document.getElementById("dia").innerHTML += dias.map(d=>`<option>${d}</option>`).join("");
+
+function toggleHorario(){
+  const destino = document.getElementById("destino").value;
+  document.getElementById("horarioContainer").style.display =
+    destino === "Escola" ? "block" : "none";
+}
 
 const kidsLista = ["José","João","Joaquim","Beni","Bento","Finkler"];
 const kidsDiv = document.getElementById("kids");
@@ -171,10 +178,7 @@ function confirmarCarona(){
   fetch(URL,{
     method:"POST",
     body:JSON.stringify({motorista,dia,tipo,destino,horario,kids:[]})
-  }).then(()=>{
-    alert("Carona confirmada! 🚐");
-    carregar();
-  });
+  }).then(()=>carregar());
 }
 
 function entrarNaCarona(c){
@@ -193,60 +197,53 @@ function entrarNaCarona(c){
   });
 }
 
+function sairDaCarona(c, nome){
+  fetch(URL,{
+    method:"POST",
+    body:JSON.stringify({...c, kids:[nome], remover:true})
+  }).then(()=>carregar());
+}
+
 function carregar(){
   fetch(URL)
   .then(r=>r.json())
   .then(data=>{
-    const lista=document.getElementById("lista");
-    lista.innerHTML="";
+    const escola=document.getElementById("escola");
+    const futsal=document.getElementById("futsal");
 
-    let grupos={};
+    escola.innerHTML="";
+    futsal.innerHTML="";
 
-    // 🔥 inverter ordem (mais novo primeiro)
     data.reverse().forEach(l=>{
       if(!l[0]) return;
 
-      const key=l[0]+l[1]+l[2]+l[3]+l[5];
+      const horaClass = l[5] === "18h" ? "hora18" : "hora19";
 
-      if(!grupos[key]){
-        grupos[key]={dia:l[0],destino:l[1],motorista:l[2],tipo:l[3],kids:[],horario:l[5]};
-      }
+      let html=`<div class="car">
+      <strong>${l[0]} ${l[5] ? "- " : ""}<span class="${horaClass}">${l[5] || ""}</span> - ${l[1]} (${l[3]})</strong><br>
+      ${l[2]}<br>`;
 
       if(l[4]){
         l[4].split(", ").forEach(k=>{
-          if(!grupos[key].kids.includes(k)){
-            grupos[key].kids.push(k);
-          }
+          html+=`→ ${k} <button class="btn-sair" onclick='sairDaCarona(${JSON.stringify(l)}, "${k}")'>Sair</button><br>`;
         });
       }
-    });
 
-    Object.values(grupos).forEach(c=>{
-      let html=`<div class="car">
-      <strong>${c.dia} - ${c.horario} - ${c.destino} (${c.tipo})</strong><br>
-      ${c.motorista}<br>`;
-
-      c.kids.forEach(k=> html+=`→ ${k}<br>`);
-
-      html+=`<button class="btn-entrar" onclick='entrarNaCarona(${JSON.stringify(c)})'>Entrar nessa carona</button>`;
+      html+=`<button class="btn-entrar" onclick='entrarNaCarona(${JSON.stringify(l)})'>Entrar nessa carona</button>`;
       html+="</div>";
 
-      lista.innerHTML+=html;
+      if(l[1]==="Escola") escola.innerHTML+=html;
+      else futsal.innerHTML+=html;
     });
 
-    if(!lista.innerHTML) lista.innerHTML="Nenhuma carona ainda";
+    if(!escola.innerHTML) escola.innerHTML="Nenhuma carona";
+    if(!futsal.innerHTML) futsal.innerHTML="Nenhuma carona";
   });
 }
 
 function enviarWhats(){
-  const lista=document.getElementById("lista").innerText;
-
-  if(lista.includes("Nenhuma")){
-    alert("Nada pra enviar");
-    return;
-  }
-
-  window.open("https://wa.me/?text="+encodeURIComponent(lista));
+  const texto = document.body.innerText;
+  window.open("https://wa.me/?text="+encodeURIComponent(texto));
 }
 
 carregar();
