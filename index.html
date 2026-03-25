@@ -264,6 +264,8 @@ function carregar(){
         l[4].split(", ").forEach(k=>{
           html+=`→ ${k} <button class="btn-sair" onclick='sairDaCarona(${JSON.stringify(l)}, "${k}")'>Sair</button><br>`;
         });
+      } else {
+        html += `<em style="color:#aaa;">Nenhuma criança ainda</em><br>`;
       }
 
       html+=`<button class="btn-entrar" onclick='entrarNaCarona(${JSON.stringify(l)})'>Entrar nessa carona</button>`;
